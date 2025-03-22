@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch GitHub User</title>
+    <title>GitHub User Fetch</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,47 +44,58 @@
             color: red;
             font-weight: bold;
         }
-    </style>
+
+</style>
 </head>
 <body>
-    <h1>GitHub User Info</h1>
-    <button onclick="githubUser()">Fetch GitHub User Data</button>
-    
-    <div id="userContainer" class="container"></div>
-    <p id="errorMessage" class="error"></p>
+    <input type="text" id="input" placeholder="Enter GitHub username">
+    <button onclick="getGitHubUser()">Fetch GitHub User Data</button>
+    <div id="parent"></div>
 
     <script>
-        function githubUser() {
-            let username = "saisaran5";
-            let url = `https://api.github.com/users/${username}`;
-            let container = document.getElementById("userContainer");
-            let errorMessage = document.getElementById("errorMessage");
-
+        function getGitHubUser() {
+            let username = document.getElementById("input").value;
+            const url = `https://api.github.com/users/${username}`;
+            
             fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    container.innerHTML = `
-                        <img src="${data.avatar_url}" alt="Avatar">
-                        <h3>${data.name || data.login}</h3>
-                        <p><strong>Username:</strong> ${data.login}</p>
-                        <p><strong>Followers:</strong> ${data.followers}</p>
-                        <p><strong>Following:</strong> ${data.following}</p>
-                        <p><strong>Public Repos:</strong> ${data.public_repos}</p>
-                        <a href="${data.html_url}" target="_blank">View Profile</a>
-                    `;
+                .then(response => response.json()) 
+                .then(userData => {
+                    console.log("User data:", userData);
 
-                    container.style.display = "block";
-                    errorMessage.textContent = ""; 
+                    let parentEle = document.getElementById("parent");
+                    parentEle.innerHTML = ""; 
+
+                    
+                    let nameEl = document.createElement("h1");
+                    nameEl.textContent = userData.login; 
+
+                    let avatarEl = document.createElement("img");
+                    avatarEl.src = userData.avatar_url;
+                    avatarEl.alt = "User Avatar";
+
+                    let followersEl = document.createElement("p");
+                    followersEl.textContent = `Followers: ${userData.followers}`;
+                    let followingEl = document.createElement("p");
+                    followingEl.textContent = `Following: ${userData.following}`;
+
+                    let reposEl = document.createElement("p");
+                    reposEl.textContent = `Public Repositories: ${userData.public_repos}`;
+
+                    let anchorEl = document.createElement("a");
+                    anchorEl.href = userData.html_url;
+                    anchorEl.textContent = "Go to GitHub"; 
+                    anchorEl.target = "_blank"; 
+
+                
+                    parentEle.appendChild(avatarEl);
+                    parentEle.appendChild(nameEl);
+                    parentEle.appendChild(followersEl);
+                    parentEle.appendChild(followingEl);
+                    parentEle.appendChild(reposEl);
+                    parentEle.appendChild(anchorEl);
                 })
                 .catch(error => {
-                    errorMessage.textContent = "Error fetching data. Please try again!";
-                    container.style.display = "none";
-                    console.error("Error fetching data:", error);
+                    console.error("Error fetching user data:", error);
                 });
         }
     </script>
